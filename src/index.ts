@@ -15,13 +15,13 @@ export const indexFolders = async (docList: Array<DocFile>, index: string, logfi
 
     worker.on('message', (message) => {
         parentPort.postMessage('Finished indexing')
-        console.log(message);
-        resolve;
+        resolve(message);
     });
 
     worker.on('error', () => {
         reject;
     });
+
     worker.on('exit', (code) => {
         if (code !== 0) reject(new Error(`Index worker stopped with exit code ${code}`));
     });
