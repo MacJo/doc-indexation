@@ -1,28 +1,38 @@
 import { ClientOptions } from '@elastic/elasticsearch';
 import { Worker, parentPort } from 'worker_threads';
-import { DocFile } from './types/indexation';
+import { DocFile, IndexResults } from './types/indexation';
 
-export const indexFolders = async (docList: Array<DocFile>, index: string, logfile: string, options: ClientOptions) => new Promise((resolve, reject) => {
+export class indexationDoc {
+    
+    clientOptions: ClientOptions
 
-    let worker_data = {
-        index,
-        logfile,
-        docList,
-        options
+    constructor(options: ClientOptions){
+        this.clientOptions = options;
     }
 
-    const worker = new Worker('./workers/indexing-worker.js', {workerData: worker_data});
+    async indexFolders(docList: Array<DocFile>, index: string, logfile: string): Promise<IndexResults> {
+        return new Promise((resolve, reject) => {
+            
+            let result: IndexResults = { id: 'ID' + Math.floor(Math.random() * 100), error: true }
+            let worker_data = { index, logfile, docList, options: this.clientOptions }
 
-    worker.on('message', (message) => {
-        parentPort.postMessage('Finished indexing')
-        resolve(message);
-    });
+            const worker = new Worker('./workers/indexing-worker.js', { workerData: worker_data });
 
-    worker.on('error', () => {
-        reject;
-    });
+            worker.on('message', (message) => {
+                result.nresults = message.linesimported;
+                result.time = message.time;
+                resolve(result);
+            });
 
-    worker.on('exit', (code) => {
-        if (code !== 0) reject(new Error(`Index worker stopped with exit code ${code}`));
-    });
-});
+            worker.on('error', () => {
+                reject;
+            });
+
+            worker.on('exit', (code) => {
+                if (code !== 0) reject(new Error(`Index worker stopped with exit code ${code}`));
+                parentPort.postMessage('Finished indexing');
+                
+            });
+        })
+    };
+}

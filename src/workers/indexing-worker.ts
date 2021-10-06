@@ -22,7 +22,7 @@ async function indexlogfile<T>(listFiles: Iterable<T>, options: ClientOptions): 
             i++
         } catch (error) {
             d++
-            throw (new Error(error))
+            throw (new Error('Error while indexing...'))
         }
     }
 
@@ -34,7 +34,7 @@ async function indexlogfile<T>(listFiles: Iterable<T>, options: ClientOptions): 
         "worker-logfile": workerData.logfile,
         "index": workerData.index,
         "lines-imported": i,
-        "lines-skipped": d,
+        "lines-error": d,
         "time-s": (tEnd - tStart) / 1000
     }
 
