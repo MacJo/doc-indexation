@@ -10,3 +10,11 @@ export interface WorkerData<T> {
 export interface DocFile {
     
 }
+
+export interface IndexResults {
+    error?: boolean,
+    message?:string,
+    id: string,
+    nresults?: Number,
+    time?: Number
+}
