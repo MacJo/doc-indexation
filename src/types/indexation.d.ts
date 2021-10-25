@@ -1,4 +1,4 @@
-import { ClientOptions } from "@elastic/elasticsearch";
+import { ClientOptions } from '@elastic/elasticsearch';
 
 export interface WorkerData<T> {
     index: string,
@@ -7,14 +7,10 @@ export interface WorkerData<T> {
     options: ClientOptions
 }
 
-export interface DocFile {
-    
-}
-
 export interface IndexResults {
     error?: boolean,
     message?:string,
     id: string,
-    nresults?: Number,
-    time?: Number
+    nresults?: number,
+    time?: number
 }

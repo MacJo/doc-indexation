@@ -4,35 +4,35 @@ import { DocFile, IndexResults } from './types/indexation';
 
 export class indexationDoc {
     
-    clientOptions: ClientOptions
+	clientOptions: ClientOptions;
 
-    constructor(options: ClientOptions){
-        this.clientOptions = options;
-    }
+	constructor(options: ClientOptions){
+		this.clientOptions = options;
+	}
 
-    async indexFolders(docList: Array<DocFile>, index: string, logfile: string): Promise<IndexResults> {
-        return new Promise((resolve, reject) => {
+	async indexFolders(docList: Array<DocFile>, index: string, logfile: string): Promise<IndexResults> {
+		return new Promise((resolve, reject) => {
             
-            let result: IndexResults = { id: 'ID' + Math.floor(Math.random() * 100), error: true }
-            let worker_data = { index, logfile, docList, options: this.clientOptions }
+			const result: IndexResults = { id: 'ID' + Math.floor(Math.random() * 100), error: true };
+			const worker_data = { index, logfile, docList, options: this.clientOptions };
 
-            const worker = new Worker('./workers/indexing-worker.js', { workerData: worker_data });
+			const worker = new Worker('./workers/indexing-worker.js', { workerData: worker_data });
 
-            worker.on('message', (message) => {
-                result.nresults = message.linesimported;
-                result.time = message.time;
-                resolve(result);
-            });
+			worker.on('message', (message) => {
+				result.nresults = message.linesimported;
+				result.time = message.time;
+				resolve(result);
+			});
 
-            worker.on('error', () => {
-                reject;
-            });
+			worker.on('error', () => {
+				reject;
+			});
 
-            worker.on('exit', (code) => {
-                if (code !== 0) reject(new Error(`Index worker stopped with exit code ${code}`));
-                parentPort.postMessage('Finished indexing');
+			worker.on('exit', (code) => {
+				if (code !== 0) reject(new Error(`Index worker stopped with exit code ${code}`));
+				parentPort.postMessage('Finished indexing');
                 
-            });
-        })
-    };
+			});
+		});
+	}
 }
